@@ -1,31 +1,34 @@
-import scala.collection.immutable.HashMap
+import scala.collection.mutable.HashMap
 import scala.io.Source
 import scala.util.control.Breaks
 import scala.collection.mutable.MutableList
 
 
-class LectureData() {
+class LectureData(nom_fichier : String) {
   
   var correspondance:HashMap[String,Integer]=new HashMap[String,Integer]();
+  var cont=Source.fromFile(nom_fichier).getLines
+  val loop = new Breaks;
+    loop.breakable {
+      for(line<-cont){
+        var line2=line.replace("	", "|");
+        var elements=line2.split('|')
+        for(i<-0 until elements.size){
+          correspondance+=elements(i)->i
+        }
+        loop.break;
+      }
+    }
   
-  correspondance+="Entry"->0;
-  correspondance+="Entry name"->1;
-  correspondance+="Gene ontology (GO)"->2;
-  correspondance+="Taxonomic lineage (ALL)"->3;
-  correspondance+="Cross-reference (Pfam)"->4;
-  correspondance+="Cross-reference (InterPro)"->5;
-  correspondance+="Cross-reference (CDD)"->6;
-  correspondance+="Cross-reference (PIRSF)"->7;
-  correspondance+="Cross-reference (PRINTS)"->8;
-  correspondance+="Cross-reference (PROSITE)"->9;
-  correspondance+="Cross-reference (ProDom)"->10;
-  correspondance+="Cross-reference (SFLD)"->11;
-  correspondance+="Cross-reference (SMART)"->12;
-  correspondance+="Cross-reference (SUPFAM)"->13;
-  correspondance+="Cross-reference (TIGRFAMs)"->14;
-  correspondance+="Cross-reference (HAMAP)"->15;
-  correspondance+="Cross-reference (Gene3D)"->16;
-  correspondance+="Cross-reference (PANTHER)"->17;
+  //Fonction permettant de changer la colonne correspondant au label
+  def ChangeLabel(label:String){
+    var buff=correspondance(label)
+    correspondance.update(label, 2)
+    for(i<-correspondance){
+      if(i._2==2 && !i._1.equals(label))
+        correspondance.update(i._1,buff)
+    }
+  }
   
   //Correspond à toute les colonnes à supprimer
   var selectRow:HashMap[String,Integer]=new HashMap[String,Integer]();
@@ -57,8 +60,8 @@ class LectureData() {
           elements:+="";
         }
         
-        for(i<-0 until elements.size)
-          simpleList(i)=elements(i)
+        for(i<-correspondance)
+          simpleList(i._2)=elements(i._2)
         
         var simpleList1:Array[String]=simpleList;
         for((i,j)<-selectRow){

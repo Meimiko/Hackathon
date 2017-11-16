@@ -9,8 +9,9 @@ import java.io.File
 import java.io.BufferedWriter
 import java.io.FileWriter
 import scala.collection.mutable.HashMap
+import main._
 
- class GraphSpark {
+class GraphSpark {
   
   /*def BuildGraph(tableau : Array[Array[String]]): (Array[(VertexId, (String, String))],Array[Edge[Int]]) ={
     var nbrItem=tableau.length-1
@@ -72,60 +73,70 @@ import scala.collection.mutable.HashMap
    
   }*/
   
-  def BuildGraph(tableau : Array[Array[String]]): (Array[(VertexId, (String, String))],Array[Edge[Int]]) = {
+  def BuildGraph(tableau : Array[Array[String]],correspondance:HashMap[String,Integer]): (Array[(VertexId, (String, String))],Array[Edge[Int]]) = {
     var nbrItem=tableau.length-1
     var nbrCol=tableau(0).length
     
     var nodes=new Array[(VertexId, (String, String))](nbrItem);
     
+    var label=""
+    var colLabel=2;
+    for(i<-correspondance){
+      if(i._2==2){
+        label=i._1
+      }
+    }
+    for(i<-0 until tableau(0).size){
+      if(tableau(0)(i).equals(label))
+          colLabel=i
+    }
+    
     //Creation de tout les noeuds
     var cmptId:VertexId=0;
     for(i<- 0 until nbrItem){
-      nodes(i)=(cmptId, (tableau(i+1)(0), tableau(i+1)(2)));
+      nodes(i)=(cmptId, (tableau(i+1)(0), tableau(i+1)(colLabel)));
       cmptId+=1;
     }
-    
-    
+
     var edge=new HashMap[(Int,Int),Int]();
-    
-    for(k<- 4 until nbrCol){
-      var attributs=new MutableList[String]();
-      //récupère tout les valeurs possible pour l'attribut étudié
-      for(j<- 0 until nbrItem){
-        var contentJ=tableau(j+1)(k);
-          var elementsJ=contentJ.split(";");
-          for(i<-elementsJ){
-            if(!i.equals("") && !attributs.contains(i))
-              attributs.+=(i)
-          }
-        
-      }
-      println(tableau(0)(k)+"    " +attributs.size)
-      
-      for(i<-attributs){
-        var voisins=new MutableList[Int]()
+    for(k<- correspondance){
+      if(k._2>3){
+        var attributs=new MutableList[String]();
+        //récupère tout les valeurs possible pour l'attribut étudié
         for(j<- 0 until nbrItem){
-          var contentJ=tableau(j+1)(k);
-          var elementsJ=contentJ.split(";");
-          for(l<-elementsJ){
-            if(i.equals(l)){
-              voisins.+=(j);
+          var contentJ=tableau(j+1)(k._2);
+            var elementsJ=contentJ.split(";");
+            for(i<-elementsJ){
+              if(!i.equals("") && !attributs.contains(i))
+                attributs.+=(i)
+            }
+          
+        }
+        println(k._1+"    " +attributs.size)
+        for(i<-attributs){
+          var voisins=new MutableList[Int]()
+          for(j<- 0 until nbrItem){
+            var contentJ=tableau(j+1)(k._2);
+            var elementsJ=contentJ.split(";");
+            for(l<-elementsJ){
+              if(i.equals(l)){
+                voisins.+=(j);
+              }
             }
           }
-        }
-        for(j<-0 until voisins.size-1){
-          for(l<-j+1 until voisins.size){
-            if(!edge.contains((voisins(j),voisins(l)))){
-              edge.+=(((voisins(j),voisins(l)),1))
-            } else{
-              edge.update((voisins(j),voisins(l)), (edge((voisins(j),voisins(l)))+1))
+          for(j<-0 until voisins.size-1){
+            for(l<-j+1 until voisins.size){
+              if(!edge.contains((voisins(j),voisins(l)))){
+                edge.+=(((voisins(j),voisins(l)),1))
+              } else{
+                edge.update((voisins(j),voisins(l)), (edge((voisins(j),voisins(l)))+1))
+              }
             }
           }
         }
       }
     }
     
-    println("Debut construction Edges")
     var edges=new Array[Edge[Int]](edge.size);
     var cmpt=0;
     for(i<-edge){
@@ -133,10 +144,7 @@ import scala.collection.mutable.HashMap
       cmpt+=1;
     }
     
-    
-    println("COnstruction Json")
-    //this.MakeJson(nodes,edges);
-    println("Json Fait")
+    this.MakeJson(nodes,edges);
     return (nodes,edges)
   }
   
@@ -154,7 +162,7 @@ import scala.collection.mutable.HashMap
     
     for(i<-0 until nodes.length){
       //mettre circle ou square selon si label ou non **A FAIRE**
-      bw.write("	{\"id\": \""+nodes(i)._1+"\", \"type\": "+"\"circle\""+", \"label\": \""+nodes(i)._2._2+"\"}");
+      bw.write("	{\"id\": \""+nodes(i)._2._1+"\", \"type\": "+"\"circle\""+", \"label\": \""+nodes(i)._2._2+"\"}");
       if(i!=nodes.size-1){
         bw.write(",\n")
       }
@@ -163,4 +171,5 @@ import scala.collection.mutable.HashMap
     bw.close();
   }
   
+
 }
