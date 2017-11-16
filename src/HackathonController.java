@@ -1,7 +1,4 @@
-
-
-
-
+package hackathon;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,6 +36,7 @@ public class HackathonController implements Initializable{
     private TextField textField;
     public ListView listeColonnes;
     public Text champLabel;
+    public Text champProtein;
     public ObservableList<Integer> selectedIndices;
     //public LectureData lect=new LectureData("data-train.tab");
     
@@ -46,12 +44,7 @@ public class HackathonController implements Initializable{
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         webEngine = webView.getEngine();
-        File f = new File("Vizu.html");
-         try { 
-         webEngine.load(f.toURI().toURL().toString());
-         } catch (MalformedURLException ex){
-             System.out.println("Impossible");
-         }
+        webEngine.load("file:///home/etudiants/payen8u/NetBeansProjects/Hackathon/src/hackathon/Vizu.html");
         
         listeColonnes.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         
@@ -78,9 +71,15 @@ public class HackathonController implements Initializable{
     }
     
     @FXML
-    protected void handleSubmitButtonAction(ActionEvent event) {
+    protected void handleLabelButtonAction(ActionEvent event) {
         champLabel.setText(textField.getText());
     }
+    
+    @FXML
+    protected void handleProteinButtonAction(ActionEvent event) {
+        champProtein.setText(textField.getText());
+    }
+    
     
     @FXML
     protected void handleValidateButtonAction(ActionEvent event) {
