@@ -44,7 +44,7 @@ class LectureData(nom_fichier : String) {
     
   }
   
-  def Parsing(nom_fichier : String,entry_to_read : Int):Array[Array[String]]={
+  def Parsing(entry_to_read : Int):Array[Array[String]]={
     var content=Source.fromFile(nom_fichier).getLines
     var data: Array[Array[String]]=new Array[Array[String]](entry_to_read);
     
