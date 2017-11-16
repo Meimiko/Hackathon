@@ -6,6 +6,7 @@ import scala.util.control.Breaks
 class LectureData() {
   
   var correspondance:HashMap[String,Integer]=new HashMap[String,Integer]();
+  
   correspondance+="Entry"->0;
   correspondance+="Entry name"->1;
   correspondance+="Gene ontology (GO)"->2;
@@ -39,17 +40,17 @@ class LectureData() {
     
   }
   
-  def Parsing(nom_fichier : String):Array[Array[String]]={
+  def Parsing(nom_fichier : String,entry_to_read : Int):Array[Array[String]]={
     var content=Source.fromFile(nom_fichier).getLines
-    var data: Array[Array[String]]=new Array[Array[String]](1000)//Source.fromFile(nom_fichier).getLines.size);
+    var data: Array[Array[String]]=new Array[Array[String]](entry_to_read);
     
     var cmpt=0;
     val loop = new Breaks;
     loop.breakable {
       for (line:String <- content) {
         var simpleList:Array[String]=new Array[String](correspondance.size);
-        line.replace(",", ";");
-        var line2:String=line.replace("	", "|");
+        var line2:String=line.replace("; ", ";");
+        line2=line.replace("	", "|");
         var elements=line2.split('|');
         while(elements.size<correspondance.size){
           elements:+="";
@@ -67,12 +68,10 @@ class LectureData() {
         cmpt+=1;
         if(cmpt%100000==0){
           println(cmpt)
-        } else if(cmpt>=1000){loop.break}
+        } else if(cmpt>=entry_to_read){loop.break}
       }
     }
     return data;
   }
-  
-  
   
 }

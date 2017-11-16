@@ -12,27 +12,27 @@ import java.io.FileWriter
  class GraphSpark {
   
   def BuildGraph(tableau : Array[Array[String]]): (Array[(VertexId, (String, String))],Array[Edge[Int]]) ={
-    var nbrItem=tableau.length
+    var nbrItem=tableau.length-1
     var nbrCol=tableau(0).length
     
     var nodes=new Array[(VertexId, (String, String))](nbrItem);
     
     //Creation de tout les noeuds
     var cmptId:VertexId=0;
-    for(i<- 1 until nbrItem){
-      nodes(i)=(cmptId, (tableau(i)(0), tableau(i)(2)));
+    for(i<- 0 until nbrItem){
+      nodes(i)=(cmptId, (tableau(i+1)(0), tableau(i+1)(2)));
       cmptId+=1;
     }
     
     var edges=new Array[Edge[Int]](0);
     
-    for(i<- 1 until nbrItem-1){
+    for(i<- 0 until nbrItem-1){
       var links=new MutableList[Edge[Int]]();
       for(j<- i+1 until nbrItem){
         var value=0;
         for(k<-4 until nbrCol){
-          var contentI=tableau(i)(k);
-          var contentJ=tableau(j)(k);
+          var contentI=tableau(i+1)(k);
+          var contentJ=tableau(j+1)(k);
           if(!contentI.equals("") | !contentJ.equals((""))){
             var elementsI=contentI.split(";");
             var elementsJ=contentJ.split(";");
@@ -53,7 +53,7 @@ import java.io.FileWriter
           edgeBuff(o)=links(o);
         edges=edges++edgeBuff
       }
-      if(i%1000==0)
+      if((i-1)%1000==0)
         println(i)
     }
     
@@ -66,8 +66,9 @@ import java.io.FileWriter
     //val graph = Graph(nodess, relationships)
     
     //graph.vertices.collect.foreach(println)
+    this.MakeJson(nodes,edges);
     return (nodes,edges)
-   //this.MakeJson(nodes,edges);
+   
   }
   
   def MakeJson(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]]) {
