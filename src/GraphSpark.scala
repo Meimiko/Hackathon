@@ -8,10 +8,11 @@ import scala.collection.mutable.MutableList
 import java.io.File
 import java.io.BufferedWriter
 import java.io.FileWriter
+import scala.collection.mutable.HashMap
 
  class GraphSpark {
   
-  def BuildGraph(tableau : Array[Array[String]]): (Array[(VertexId, (String, String))],Array[Edge[Int]]) ={
+  /*def BuildGraph(tableau : Array[Array[String]]): (Array[(VertexId, (String, String))],Array[Edge[Int]]) ={
     var nbrItem=tableau.length-1
     var nbrCol=tableau(0).length
     
@@ -69,6 +70,74 @@ import java.io.FileWriter
     this.MakeJson(nodes,edges);
     return (nodes,edges)
    
+  }*/
+  
+  def BuildGraph(tableau : Array[Array[String]]): (Array[(VertexId, (String, String))],Array[Edge[Int]]) = {
+    var nbrItem=tableau.length-1
+    var nbrCol=tableau(0).length
+    
+    var nodes=new Array[(VertexId, (String, String))](nbrItem);
+    
+    //Creation de tout les noeuds
+    var cmptId:VertexId=0;
+    for(i<- 0 until nbrItem){
+      nodes(i)=(cmptId, (tableau(i+1)(0), tableau(i+1)(2)));
+      cmptId+=1;
+    }
+    
+    
+    var edge=new HashMap[(Int,Int),Int]();
+    
+    for(k<- 4 until nbrCol){
+      var attributs=new MutableList[String]();
+      //récupère tout les valeurs possible pour l'attribut étudié
+      for(j<- 0 until nbrItem){
+        var contentJ=tableau(j+1)(k);
+          var elementsJ=contentJ.split(";");
+          for(i<-elementsJ){
+            if(!i.equals("") && !attributs.contains(i))
+              attributs.+=(i)
+          }
+        
+      }
+      println(tableau(0)(k)+"    " +attributs.size)
+      
+      for(i<-attributs){
+        var voisins=new MutableList[Int]()
+        for(j<- 0 until nbrItem){
+          var contentJ=tableau(j+1)(k);
+          var elementsJ=contentJ.split(";");
+          for(l<-elementsJ){
+            if(i.equals(l)){
+              voisins.+=(j);
+            }
+          }
+        }
+        for(j<-0 until voisins.size-1){
+          for(l<-j+1 until voisins.size){
+            if(!edge.contains((voisins(j),voisins(l)))){
+              edge.+=(((voisins(j),voisins(l)),1))
+            } else{
+              edge.update((voisins(j),voisins(l)), (edge((voisins(j),voisins(l)))+1))
+            }
+          }
+        }
+      }
+    }
+    
+    println("Debut construction Edges")
+    var edges=new Array[Edge[Int]](edge.size);
+    var cmpt=0;
+    for(i<-edge){
+      edges(cmpt)=Edge(i._1._1,i._1._2,i._2)
+      cmpt+=1;
+    }
+    
+    
+    println("COnstruction Json")
+    //this.MakeJson(nodes,edges);
+    println("Json Fait")
+    return (nodes,edges)
   }
   
   def MakeJson(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]]) {
@@ -76,14 +145,14 @@ import java.io.FileWriter
     val bw = new BufferedWriter(new FileWriter(file))
     bw.write("{\n  \"graph\": [],\n  \"links\": [\n")
     
-    for(i<-1 until edges.size){
-      bw.write("	{\"source\": "+(edges(i).srcId-1)+", \"target\": "+(edges(i).dstId-1)+", \"weight\": \""+edges(i).attr+"\"}");
+    for(i<-0 until edges.length){
+      bw.write("	{\"source\": "+(edges(i).srcId)+", \"target\": "+(edges(i).dstId)+", \"weight\": \""+edges(i).attr+"\"}");
       if(i!=edges.size-1)
         bw.write(",\n")
     }
     bw.write("],\n  \"nodes\": [\n");
     
-    for(i<-1 until nodes.size){
+    for(i<-0 until nodes.length){
       //mettre circle ou square selon si label ou non **A FAIRE**
       bw.write("	{\"id\": \""+nodes(i)._1+"\", \"type\": "+"\"circle\""+", \"label\": \""+nodes(i)._2._2+"\"}");
       if(i!=nodes.size-1){

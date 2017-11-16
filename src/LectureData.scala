@@ -1,6 +1,7 @@
 import scala.collection.immutable.HashMap
 import scala.io.Source
 import scala.util.control.Breaks
+import scala.collection.mutable.MutableList
 
 
 class LectureData() {
@@ -73,5 +74,6 @@ class LectureData() {
     }
     return data;
   }
+  
   
 }
