@@ -71,23 +71,26 @@ import java.io.FileWriter
   }
   
   def MakeJson(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]]) {
-    val file = new File("test.txt")
+    val file = new File("data.json")
     val bw = new BufferedWriter(new FileWriter(file))
-    bw.write("{\n	\"graph\": [],\n	\"links\": [\n")
+    bw.write("{\n  \"graph\": [],\n  \"links\": [\n")
     
-    for(i<-0 until edges.size){
-      bw.write("{\"source\": "+edges(i).srcId+", \"target\": "+edges(i).dstId+", \"weight\": \""+edges(i).attr+"\"},");
+    for(i<-1 until edges.size){
+      bw.write("	{\"source\": "+(edges(i).srcId-1)+", \"target\": "+(edges(i).dstId-1)+", \"weight\": \""+edges(i).attr+"\"}");
       if(i!=edges.size-1)
-        bw.write("\n")
+        bw.write(",\n")
     }
-    bw.write("]\n		\"nodes\": [\n");
-    for(i<-0 until edges.size){
-      bw.write("{\"source\": "+edges(i).srcId+", \"target\": "+edges(i).dstId+", \"weight\": \""+edges(i).attr+"\"},");
+    bw.write("],\n  \"nodes\": [\n");
+    
+    for(i<-1 until nodes.size){
+      //mettre circle ou square selon si label ou non **A FAIRE**
+      bw.write("	{\"id\": \""+nodes(i)._1+"\", \"type\": "+"\"circle\""+", \"label\": \""+nodes(i)._2._2+"\"}");
+      if(i!=nodes.size-1){
+        bw.write(",\n")
+      }
     }
-    
-    
-
-    bw.close()
+    bw.write("],\n  \"directed\": false,\n  \"multigraph\": false\n}");
+    bw.close();
   }
   
 }
