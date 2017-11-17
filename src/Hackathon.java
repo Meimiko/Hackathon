@@ -16,9 +16,9 @@ public class Hackathon extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("hackathon2.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("hackathon.fxml"));
         
-        Scene scene = new Scene(root, 1200, 700);
+        Scene scene = new Scene(root, 1400, 700);
         
         stage.setTitle("Big Graph Data");
         stage.setScene(scene);

@@ -1,72 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
-<GridPane alignment="CENTER" style="-fx-background-image: url(&quot;01.jpg&quot;);" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.131" fx:controller="hackathon.HackathonController">
-        <ListView fx:id="listeColonnes" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="3">
-            <items>
-                <FXCollections fx:factory="observableArrayList">
-                <String fx:value="Entry" />
-		<String fx:value="Entry name" />
-		<String fx:value="Gene ontology (GO)" />
-		<String fx:value="Taxonomic lineage (ALL)" />
-		<String fx:value="Cross-reference (Pfam)" />
-		<String fx:value="Cross-reference (InterPro)" />
-		<String fx:value="Cross-reference (CDD)" />
-		<String fx:value="Cross-reference (PIRSF)" />
-		<String fx:value="Cross-reference (PRINTS)" />
-		<String fx:value="Cross-reference (PROSITE)" />
-		<String fx:value="Cross-reference (ProDom)" />
-		<String fx:value="Cross-reference (SFLD)" />
-		<String fx:value="Cross-reference (SMART)" />
-		<String fx:value="Cross-reference (SUPFAM)" />
-		<String fx:value="Cross-reference (TIGRFAMs)" />
-		<String fx:value="Cross-reference (HAMAP)" />
-		<String fx:value="Cross-reference (Gene3D)" />
-		<String fx:value="Cross-reference (PANTHER)" />
-                </FXCollections>
-            </items>
-        </ListView>
-        
-        <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="3">
-            <Button onAction="#handleValidateButtonAction" text="Validate" />
-        </HBox> 
-        
-        <Label text="Label/Protein" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-        <TextField fx:id="textField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-        
-        <HBox spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="1">
-            <Button onAction="#handleLabelButtonAction" text="Search Label" />
-        </HBox> 
-        
-        <HBox spacing="10" GridPane.columnIndex="3" GridPane.rowIndex="1">
-            <Button onAction="#handleProteinButtonAction" text="Search Protein" />
-        </HBox> 
-        
-        <WebView fx:id="webView" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="2" />
-   <columnConstraints>
-      <ColumnConstraints />
-      <ColumnConstraints />
-      <ColumnConstraints />
-      <ColumnConstraints />
-      <ColumnConstraints />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints />
-      <RowConstraints />
-      <RowConstraints />
-      <RowConstraints />
-   </rowConstraints>
-        
-</GridPane>
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="HackathonController">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+                  <MenuItem mnemonicParsing="false" onAction="#printAboutAction" text="About" />
+            <MenuItem mnemonicParsing="false" onAction="#closeWindowsAction" text="Close" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" onAction="#printHelpAction" text="Help" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+    <SplitPane dividerPositions="0.12, 0.9" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+      <items>
+        <AnchorPane prefHeight="549.0" prefWidth="62.0">
+          <children>
+                  <ListView fx:id="listeColonnes" layoutX="11.0" layoutY="57.0" prefHeight="551.0" prefWidth="222.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="60.0" />
+                  <TextField fx:id="champProtein" layoutY="2.0" onAction="#handleSearchProteinButtonAction" prefHeight="25.0" prefWidth="134.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="108.0" />
+                  <Button layoutX="134.0" layoutY="2.0" mnemonicParsing="false" onAction="#handleSearchProteinButtonAction" text="Search Proteine" AnchorPane.rightAnchor="0.0" />
+                  <Button contentDisplay="CENTER" layoutY="471.0" mnemonicParsing="false" onAction="#handleGraphButtonAction" prefHeight="25.0" prefWidth="50.0" text="Valider" AnchorPane.bottomAnchor="52.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                  <Button fx:id="printGraphButton" layoutX="52.0" layoutY="526.0" mnemonicParsing="false" onAction="#handlePrintGraphButton" prefHeight="25.0" prefWidth="64.0" text="Afficher Graphe" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                  <Button alignment="CENTER" contentDisplay="CENTER" layoutY="465.0" mnemonicParsing="false" onAction="#handlePropagationButton" text="Effectuer propagation label" textAlignment="CENTER" AnchorPane.bottomAnchor="26.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+          </children>
+        </AnchorPane>
+            <AnchorPane prefHeight="200.0" prefWidth="608.0">
+               <children>
+                  <WebView fx:id="webView" focusTraversable="false" layoutX="46.0" layoutY="3.0" prefHeight="549.0" prefWidth="596.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children>
+            </AnchorPane>
+        <AnchorPane>
+          <children>
+                  <Label fx:id="champDetails" alignment="TOP_LEFT" layoutX="27.0" layoutY="128.0" prefHeight="235.0" prefWidth="168.0" text="Info et details" AnchorPane.bottomAnchor="314.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <TextField fx:id="champFichier" layoutX="91.0" layoutY="391.0" prefHeight="25.0" prefWidth="99.0" AnchorPane.leftAnchor="90.0" AnchorPane.rightAnchor="5.0" />
+                  <Label layoutX="21.0" layoutY="396.0" text="Fichier" AnchorPane.leftAnchor="21.0" />
+                  <Label layoutX="10.0" layoutY="332.0" text="Paramètres :" AnchorPane.leftAnchor="10.0">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="8.0" layoutY="428.0" text="Nb noeuds" AnchorPane.leftAnchor="8.0" />
+                  <TextField fx:id="champNbrNoeuds" layoutX="100.0" layoutY="424.0" prefHeight="25.0" prefWidth="82.0" AnchorPane.leftAnchor="90.0" AnchorPane.rightAnchor="5.0" />
+                  <Button alignment="CENTER" contentDisplay="CENTER" layoutX="36.0" layoutY="476.0" mnemonicParsing="false" onAction="#handleMajParameterButton" prefHeight="22.0" prefWidth="99.0" text="Mettre à jour" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" />
+                  <TextField fx:id="champLabel" layoutX="100.0" layoutY="351.0" onAction="#handleLabelButtonAction" prefHeight="25.0" prefWidth="65.0" AnchorPane.leftAnchor="90.0" AnchorPane.rightAnchor="5.0" />
+                  <Label layoutX="25.0" layoutY="356.0" text="Label" />
+          </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+        </AnchorPane>
+      </items>
+    </SplitPane>
+    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+      <children>
+        <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
+          <font>
+            <Font size="11.0" fx:id="x3" />
+          </font>
+          <textFill>
+            <Color blue="0.625" green="0.625" red="0.625" fx:id="x4" />
+          </textFill>
+        </Label>
+        <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+        <Label font="$x3" maxWidth="-1.0" text="Right status" textFill="$x4" HBox.hgrow="NEVER" />
+      </children>
+      <padding>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+      </padding>
+    </HBox>
+  </children>
+</VBox>

@@ -44,7 +44,7 @@ import scala.Tuple2;
 public class HackathonController implements Initializable{
     
     private String nomFichier="data-train.tab";
-    private String cheminHTML="file:///C:/Users/Tagre/git/ScalaHackathon/Vizu.html";
+    private String cheminHTML="file:///home/aurore/workspace/HackathonScala/Vizu.html";
     @FXML WebView webView;
     @FXML private WebEngine webEngine;
     @FXML public ListView<String> listeColonnes;
@@ -66,11 +66,11 @@ public class HackathonController implements Initializable{
     	champNbrNoeuds.setText("100");
     	champFichier.setText(nomFichier);
         webEngine = webView.getEngine();
-        //webEngine.load("file:///C:/Users/Tagre/git/ScalaHackathon/Vizu.html");
+        webEngine.load(cheminHTML);
         
         listeColonnes.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         
-        refreshListAttribut();
+        refreshListAttribut(true);
 		
 		//Remplissage de la colonne d'attributs
 		
@@ -78,14 +78,15 @@ public class HackathonController implements Initializable{
 		champDetails.setText("Détails :\nFichier utilisé : "+nomFichier+"\nLabel du graph : "+label);
     }
     
-    protected void refreshListAttribut() {
+    protected void refreshListAttribut(Boolean first) {
     	BufferedReader flotFiltre;
 		String filtre;
     	try {
 			flotFiltre = new BufferedReader(new FileReader(nomFichier));
 			filtre=flotFiltre.readLine();
 			String[] elements=filtre.split("\t");
-			label=elements[2];
+			if(first)
+				label=elements[2];
 			champLabel.setText(label);
 			ObservableList<String> items =FXCollections.observableArrayList ();
 	        for (int i=2;i<elements.length;i++){
@@ -137,13 +138,19 @@ public class HackathonController implements Initializable{
     protected void handlePrintGraphButton(ActionEvent event) {
     	champDetails.setText(details);
     	printGraphButton.setTextFill(Color.BLACK);
-    	webEngine.load(cheminHTML);
+    	//webEngine = webView.getEngine();
+    	//webEngine.load(cheminHTML);
+    	webEngine.reload();
     }
     
     
     @FXML
     protected void handleSearchProteinButtonAction(ActionEvent event) {
+    	System.out.println(nodesEdges);
+    	System.out.println(nodesEdges._2.length);
+
         lect.searchProteine(champProtein.getText(), nodesEdges._1, nodesEdges._2);
+        printGraphButton.setTextFill(Color.GREEN);
     }
     
     @FXML
@@ -160,13 +167,13 @@ public class HackathonController implements Initializable{
         dialog.initOwner(stage);
         dialog.setTitle("About");
         VBox dialogVbox = new VBox(20);
-        dialogVbox.getChildren().add(new Text("Application réalisée dans le cadre du Hackathon 2017\n\n"
-        		+ "Crédits :\n"
-        		+ "CLOUET Maël\n"
-        		+ "HUSSON Aurore\n"
-        		+ "MARTINS Melvin\n"
-        		+ "PAYEN Typhaine"));
-        Scene dialogScene = new Scene(dialogVbox, 300, 130);
+        dialogVbox.getChildren().add(new Text("   Application réalisée dans le cadre du Hackathon 2017\n\n"
+        		+ "   Crédits :\n"
+        		+ "   CLOUET Maël\n"
+        		+ "   HUSSON Aurore\n"
+        		+ "   MARTINS Melvin\n"
+        		+ "   PAYEN Typhaine"));
+        Scene dialogScene = new Scene(dialogVbox, 400, 130);
         dialog.setScene(dialogScene);
         dialog.show();
     }
@@ -178,8 +185,11 @@ public class HackathonController implements Initializable{
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(stage);
         VBox dialogVbox = new VBox(20);
-        dialogVbox.getChildren().add(new Text("Voici l'aide"));
-        Scene dialogScene = new Scene(dialogVbox, 300, 150);
+        
+        dialogVbox.getChildren().add(new Text("\n   Couleur du bouton \"Afficher Graph\":\n\n   Noir : Le graph chargé est affiché\n"
+        		+ "   Rouge : Le graph total est chargé\n"
+        		+ "   Vert : Le graph des voisins de la proteine spécifiée est chargé"));
+        Scene dialogScene = new Scene(dialogVbox, 500, 150);
         dialog.setScene(dialogScene);
         dialog.show();
     }
@@ -189,13 +199,23 @@ public class HackathonController implements Initializable{
     	label=champLabel.getText();
         lect.ChangeLabel(champLabel.getText());
         nomFichier=champFichier.getText();
-        refreshListAttribut();
-        
-        
-        
+        refreshListAttribut(false);
+       
         handleGraphButtonAction(action);
-        
     }
     
-    
+    @FXML
+    protected void handlePropagationButton(ActionEvent action) {
+    	//Tuple2<Tuple2<Object, Tuple2<String, String>>[], Edge<Object>[]> nodesEdges2=nodesEdges;
+    	for(int k=0;k<3;k++){
+	    	for(Tuple2<Object, Tuple2<String, String>> i:nodesEdges._1){
+	    		String name=i._2._1;
+	    		Object id=i._1;
+	    		if(i._2._2.equals("")){
+	    			nodesEdges=lect.propagationLabel(name,nodesEdges._1, nodesEdges._2);
+	    		}
+	    	}
+    	}
+    	lect.makeJson(nodesEdges._1, nodesEdges._2);
+    }
 }

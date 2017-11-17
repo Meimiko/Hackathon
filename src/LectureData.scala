@@ -15,6 +15,8 @@ import org.apache.spark.graphx.EdgeDirection
 
 
 class LectureData(nom_fichier : String) {
+  val conf = new SparkConf().setAppName("SparkMe Application").setMaster("local")
+   val sc = new SparkContext(conf)
   
   var correspondance:HashMap[String,Integer]=new HashMap[String,Integer]();
   var cont=Source.fromFile(nom_fichier).getLines
@@ -95,7 +97,7 @@ class LectureData(nom_fichier : String) {
     return data;
   }
   
-  def RunGraph(data : Array[Array[String]],correspondance:HashMap[String,Integer]): (Array[(VertexId, (String, String))],Array[Edge[Int]])={
+def RunGraph(data : Array[Array[String]],correspondance:HashMap[String,Integer]): (Array[(VertexId, (String, String))],Array[Edge[Int]])={
     val graph:GraphSpark=new GraphSpark();
     var (nodes,edges)=graph.BuildGraph(data,correspondance)
     
@@ -114,14 +116,12 @@ class LectureData(nom_fichier : String) {
   }
   
   def searchProteine(protein:String,nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]])={
-    val conf = new SparkConf().setAppName("SparkMe Application").setMaster("local")
-    val sc = new SparkContext(conf)
-  
     val vertices: RDD[(VertexId, (String, String))] = sc.parallelize(nodes)
     val relationships: RDD[Edge[Int]] = sc.parallelize(edges)
     
     var graphes=Graph(vertices,relationships);
     var proteine:VertexId=0;
+    
     for(i<-nodes){
       if(i._2._1.equals(protein))
         proteine=i._1;
@@ -129,18 +129,112 @@ class LectureData(nom_fichier : String) {
     
     val graph:GraphSpark=new GraphSpark();
     //**A VERIFIER**
-    graph.MakeJson(graphes.collectNeighbors(EdgeDirection.Either).lookup(proteine)(0), graphes.collectEdges(EdgeDirection.Either).lookup(proteine)(0))
+    println(graphes.collectNeighbors(EdgeDirection.Either).id)
+
+    var nod=graphes.collectNeighbors(EdgeDirection.Either).lookup(proteine)(0);
     
-    /*graphes.collectEdges(EdgeDirection.Either).lookup(proteine)
-    graphes.collectNeighbors(EdgeDirection.Either).lookup(proteine)(0).foreach(println)
-    graphes.collectEdges(EdgeDirection.Either).lookup(proteine)(0).foreach(println)
-    graphes.vertices.collect()
-    graphes.edges.collect()*/
+    
+    var target:(VertexId,(String,String))=(1,("t","r"))
+    for(i<-graphes.vertices.collect()){
+      if(i._1==proteine){
+        target=i;
+      }
+    }
+    
+    var test:Array[(VertexId, (String, String))]=Array((1,(target._2._1,target._2._2)));
+    nod=test++nod;
+    
+    var edg:Array[Edge[Int]]=Array[Edge[Int]]();
+    var cmpt=1;
+    for(i<-graphes.edges.collect()){
+      if(i.dstId.equals(proteine)){
+        edg=edg++Array(Edge(cmpt,0,i.attr));
+        cmpt+=1;
+      } else if(i.srcId.equals(proteine)){
+        edg=edg++Array(Edge(0,cmpt,i.attr));
+        cmpt+=1;
+      }
+      
+    }
+    
+    //graphes.collectNeighbors(EdgeDirection.Either).lookup(proteine)(0).foreach(println)
+
+    graph.MakeJson(nod, edg)
+    //graphes.collectEdges(EdgeDirection.Either).lookup(proteine)
+    
     
   }
   
-  def propagationLabel(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]])={
+  def propagationLabel(protein_name:String,nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]]): (Array[(VertexId, (String, String))],Array[Edge[Int]])={
+    val vertices: RDD[(VertexId, (String, String))] = sc.parallelize(nodes)
+    val relationships: RDD[Edge[Int]] = sc.parallelize(edges)
     
+    var graphes=Graph(vertices,relationships);
+    var proteine:VertexId=0;
+    
+    var prot:(VertexId, (String, String))=(0,("b","b"));
+    var cmptNodes=0;
+    for(i<-0 until nodes.size){
+      if(nodes(i)._2._1.equals(protein_name)){
+        proteine=nodes(i)._1;
+        prot=nodes(i)
+        cmptNodes=i;
+      }
+    }
+    
+    var nod=graphes.collectNeighbors(EdgeDirection.Either).lookup(proteine)(0);
+    
+    if(nod.size==0){
+      return(nodes,edges)
+    }
+    var edg=graphes.collectEdges(EdgeDirection.Either).lookup(proteine)(0);
+    
+    var listeLabel :HashMap[String,Int]=new HashMap[String,Int]();
+    var cmpt=0;
+    for(i<-edg){
+      if(i.srcId!=proteine){
+        listeLabel.+=(graphes.vertices.lookup(i.srcId)(0)._2->i.attr);
+      } else{
+        listeLabel.+=(graphes.vertices.lookup(i.dstId)(0)._2->i.attr);
+      }
+    }
+    
+    var listeAttribut:HashMap[String,Int]=new HashMap[String,Int]();
+    for(i<-listeLabel){
+      if(i!=null){
+        var elements=i._1.split(";");
+        for(j:String<-elements){
+          if(!listeAttribut.contains(j)){
+            listeAttribut.+=(j->i._2);
+          } else{
+            listeAttribut.update(j, listeAttribut(j)+i._2)
+          }
+        }
+      }
+    }
+    
+    var max=0;
+    var lab="";
+    for(i<-listeAttribut){
+      if(i._2>max && !i._1.equals("")){
+        max=i._2;
+        lab=i._1;
+        println(i._1)
+      }
+    }
+    
+    nodes.update(cmptNodes, (prot._1, (prot._2._1,lab)))
+    
+    println("id:"+prot._2._1+" ancien : "+prot._2._2+" ; nouveau : "+lab);
+    Thread.sleep(500);
+    
+    
+    return(nodes,edges)
+  }
+  
+  def makeJson(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]])={
+    val graph:GraphSpark=new GraphSpark();
+    graph.MakeJson(nodes, edges)
   }
   
   
