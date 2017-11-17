@@ -214,21 +214,28 @@ def RunGraph(data : Array[Array[String]],correspondance:HashMap[String,Integer])
     }
     
     var max=0;
-    var lab="";
+    var lab=new MutableList[String]();
     for(i<-listeAttribut){
       if(i._2>max && !i._1.equals("")){
         max=i._2;
-        lab=i._1;
-        println(i._1)
+        lab.clear()
+        lab+=(i._1);
+      } else if (i._2==max && !i._1.equals("")){
+        lab+=(i._1);
       }
     }
     
-    nodes.update(cmptNodes, (prot._1, (prot._2._1,lab)))
+    var labe="";
+    if(lab.size>=1){
+      labe=lab(0)
+    }
     
-    println("id:"+prot._2._1+" ancien : "+prot._2._2+" ; nouveau : "+lab);
-    Thread.sleep(500);
-    
-    
+    for(i<-1 until lab.size){
+      labe=labe+";"+lab(i)
+    }
+    nodes.update(cmptNodes, (prot._1, (prot._2._1,labe)))
+    println("id:"+prot._2._1+" ancien : "+prot._2._2+" ; nouveau : "+labe);
+    //Thread.sleep(500);
     return(nodes,edges)
   }
   

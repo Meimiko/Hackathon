@@ -1,19 +1,10 @@
 
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Scanner;
-
-import javax.swing.JTextField;
 
 import org.apache.spark.graphx.Edge;
 
@@ -188,7 +179,8 @@ public class HackathonController implements Initializable{
         
         dialogVbox.getChildren().add(new Text("\n   Couleur du bouton \"Afficher Graph\":\n\n   Noir : Le graph chargé est affiché\n"
         		+ "   Rouge : Le graph total est chargé\n"
-        		+ "   Vert : Le graph des voisins de la proteine spécifiée est chargé"));
+        		+ "   Vert : Le graph des voisins de la proteine spécifiée est chargé\n"
+        		+ "   Bleu : La propagation des labels est terminée"));
         Scene dialogScene = new Scene(dialogVbox, 500, 150);
         dialog.setScene(dialogScene);
         dialog.show();
@@ -210,12 +202,12 @@ public class HackathonController implements Initializable{
     	for(int k=0;k<3;k++){
 	    	for(Tuple2<Object, Tuple2<String, String>> i:nodesEdges._1){
 	    		String name=i._2._1;
-	    		Object id=i._1;
 	    		if(i._2._2.equals("")){
 	    			nodesEdges=lect.propagationLabel(name,nodesEdges._1, nodesEdges._2);
 	    		}
 	    	}
     	}
     	lect.makeJson(nodesEdges._1, nodesEdges._2);
+    	printGraphButton.setTextFill(Color.BLUE);
     }
 }
