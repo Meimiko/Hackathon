@@ -73,6 +73,8 @@ class GraphSpark {
    
   }*/
   
+  
+  
   def BuildGraph(tableau : Array[Array[String]],correspondance:HashMap[String,Integer]): (Array[(VertexId, (String, String))],Array[Edge[Int]]) = {
     var nbrItem=tableau.length-1
     var nbrCol=tableau(0).length
@@ -100,7 +102,7 @@ class GraphSpark {
 
     var edge=new HashMap[(Int,Int),Int]();
     for(k<- correspondance){
-      if(k._2>3){
+      if(k._2>2){
         var attributs=new MutableList[String]();
         //récupère tout les valeurs possible pour l'attribut étudié
         for(j<- 0 until nbrItem){
@@ -143,12 +145,11 @@ class GraphSpark {
       edges(cmpt)=Edge(i._1._1,i._1._2,i._2)
       cmpt+=1;
     }
-    
     this.MakeJson(nodes,edges);
     return (nodes,edges)
   }
   
-  def MakeJson(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]]) {
+  def MakeJson(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]])={
     val file = new File("data.json")
     val bw = new BufferedWriter(new FileWriter(file))
     bw.write("{\n  \"graph\": [],\n  \"links\": [\n")
@@ -169,6 +170,32 @@ class GraphSpark {
     }
     bw.write("],\n  \"directed\": false,\n  \"multigraph\": false\n}");
     bw.close();
+    println("Json construit")
+  }
+  
+  def searchProtein(protein:String,nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]])={
+    val conf = new SparkConf().setAppName("SparkMe Application").setMaster("local")
+    val sc = new SparkContext(conf)
+  
+    val vertices: RDD[(VertexId, (String, String))] = sc.parallelize(nodes)
+    val relationships: RDD[Edge[Int]] = sc.parallelize(edges)
+    
+    var graphes=Graph(vertices,relationships);
+    var proteine:VertexId=0;
+    for(i<-nodes){
+      if(i._2._1.equals(protein))
+        proteine=i._1;
+    }
+    this.MakeJson(nodes, edges)
+    graphes.collectNeighbors(EdgeDirection.Either).lookup(proteine)(0).foreach(println)
+    graphes.collectEdges(EdgeDirection.Either).lookup(proteine)(0).foreach(println)
+    graphes.vertices.collect()
+    graphes.edges.collect()
+  }
+  
+  def propagationLabel(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]])={
+    
+    
   }
   
 

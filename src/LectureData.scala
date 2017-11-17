@@ -1,7 +1,17 @@
+import scala.Tuple2;
 import scala.collection.mutable.HashMap
 import scala.io.Source
 import scala.util.control.Breaks
 import scala.collection.mutable.MutableList
+import main.GraphSpark
+import main.GraphSpark
+import org.apache.spark.graphx.Edge
+import org.apache.spark.graphx.VertexId
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
+import org.apache.spark.graphx.Graph
+import org.apache.spark.SparkConf
+import org.apache.spark.graphx.EdgeDirection
 
 
 class LectureData(nom_fichier : String) {
@@ -34,14 +44,21 @@ class LectureData(nom_fichier : String) {
   var selectRow:HashMap[String,Integer]=new HashMap[String,Integer]();
   
   //Rempli la variable selectRow selon les argument en entrée
-  def RowSelection(rowList : Array[String]){
+  def RowSelection(rowList : Array[String]):HashMap[String,Integer]={
+    var buffRow=correspondance;
     for(row:String<-rowList){
-      println(correspondance(row))
+      //println(correspondance(row))
       var value:Int=correspondance(row);
-      selectRow += (row->value);
+      buffRow=buffRow.-(row);
       println(row);
     }
-    
+    for(i<-correspondance){
+      if(i._2<=2){
+        buffRow=buffRow.-(i._1);
+      }
+    }
+    this.selectRow=buffRow;
+    return buffRow;
   }
   
   def Parsing(entry_to_read : Int):Array[Array[String]]={
@@ -65,7 +82,7 @@ class LectureData(nom_fichier : String) {
         
         var simpleList1:Array[String]=simpleList;
         for((i,j)<-selectRow){
-          simpleList1=simpleList1.take(j)
+          simpleList1(j)=""
         }
         
         data(cmpt)=simpleList1;
@@ -76,6 +93,54 @@ class LectureData(nom_fichier : String) {
       }
     }
     return data;
+  }
+  
+  def RunGraph(data : Array[Array[String]],correspondance:HashMap[String,Integer]): (Array[(VertexId, (String, String))],Array[Edge[Int]])={
+    val graph:GraphSpark=new GraphSpark();
+    var (nodes,edges)=graph.BuildGraph(data,correspondance)
+    
+    for(i<-0 until nodes.length){
+      //println(nodes(i))
+    }
+    for(i<-0 until edges.length){
+      //println(edges(i))
+    }
+    println("Done")
+    println("nodesNbr : "+nodes.length)
+    println("edgesNbr : "+edges.length)
+    
+    return(nodes,edges)
+    
+  }
+  
+  def searchProteine(protein:String,nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]])={
+    val conf = new SparkConf().setAppName("SparkMe Application").setMaster("local")
+    val sc = new SparkContext(conf)
+  
+    val vertices: RDD[(VertexId, (String, String))] = sc.parallelize(nodes)
+    val relationships: RDD[Edge[Int]] = sc.parallelize(edges)
+    
+    var graphes=Graph(vertices,relationships);
+    var proteine:VertexId=0;
+    for(i<-nodes){
+      if(i._2._1.equals(protein))
+        proteine=i._1;
+    }
+    
+    val graph:GraphSpark=new GraphSpark();
+    //**A VERIFIER**
+    graph.MakeJson(graphes.collectNeighbors(EdgeDirection.Either).lookup(proteine)(0), graphes.collectEdges(EdgeDirection.Either).lookup(proteine)(0))
+    
+    /*graphes.collectEdges(EdgeDirection.Either).lookup(proteine)
+    graphes.collectNeighbors(EdgeDirection.Either).lookup(proteine)(0).foreach(println)
+    graphes.collectEdges(EdgeDirection.Either).lookup(proteine)(0).foreach(println)
+    graphes.vertices.collect()
+    graphes.edges.collect()*/
+    
+  }
+  
+  def propagationLabel(nodes:Array[(VertexId, (String, String))],edges:Array[Edge[Int]])={
+    
   }
   
   

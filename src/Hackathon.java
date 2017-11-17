@@ -1,4 +1,4 @@
-package hackathon;
+
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -16,12 +16,13 @@ public class Hackathon extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("hackathon.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("hackathon2.fxml"));
         
-        Scene scene = new Scene(root, 1000, 800);
+        Scene scene = new Scene(root, 1200, 700);
         
         stage.setTitle("Big Graph Data");
         stage.setScene(scene);
+        //stage.setFullScreen(true);
         
         stage.show();
     }

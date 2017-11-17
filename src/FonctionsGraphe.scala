@@ -34,11 +34,11 @@ object App {
   val conf = new SparkConf().setAppName("SparkMe Application").setMaster("local")
   val sc = new SparkContext(conf)
   
-  var lect:LectureData = new LectureData();
-  var data = lect.Parsing("data-train.tab")
+  var lect:LectureData = new LectureData("data-train.tab");
+  var data = lect.Parsing(200)
   
   var graphh:GraphSpark = new GraphSpark()
-  var (nodes, edges) = graphh.BuildGraph(data)
+  var (nodes, edges) = graphh.BuildGraph(data,lect.correspondance)
   
   val vertices: RDD[(VertexId, (String, String))] = sc.parallelize(nodes)
   val relationships: RDD[Edge[Int]] = sc.parallelize(edges)
